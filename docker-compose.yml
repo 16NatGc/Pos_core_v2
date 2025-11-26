@@ -1,0 +1,95 @@
+services:
+  # PUERTA DE ENLACE PRINCIPAL
+  puerta_enlace:
+    build: ./puerta_de_enlace_api
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGODB_URL=mongodb://mongodb:27017
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - pos_core_network
+
+  # SERVICIO DE AUTENTICACIÓN
+  servicio_autenticacion:
+    build: ./microservicios/servicio_autenticacion
+    ports:
+      - "8001:8000"
+    environment:
+      - MONGODB_URL=mongodb://mongodb:27017
+      - JWT_SECRET=mi_clave_secreta_pos_core_2025
+      - JWT_ALGORITHM=HS256
+    depends_on:
+      - mongodb
+    networks:
+      - pos_core_network
+
+  # SERVICIO DE INVENTARIO
+  servicio_inventario:
+    build: ./microservicios/servicio_inventario
+    ports:
+      - "8002:8000"
+    environment:
+      - MONGODB_URL=mongodb://mongodb:27017
+    depends_on:
+      - mongodb
+    networks:
+      - pos_core_network
+
+  # SERVICIO DE VENTAS
+  servicio_ventas:
+    build: ./microservicios/servicio_ventas
+    ports:
+      - "8003:8000"
+    environment:
+      - MONGODB_URL=mongodb://mongodb:27017
+    depends_on:
+      - mongodb
+      - servicio_inventario
+    networks:
+      - pos_core_network
+
+  # SERVICIO DE REPORTES
+  servicio_reportes:
+    build: ./microservicios/servicio_reportes
+    ports:
+      - "8004:8000"
+    environment:
+      - MONGODB_URL=mongodb://mongodb:27017
+    depends_on:
+      - mongodb
+      - servicio_ventas
+      - servicio_inventario
+    networks:
+      - pos_core_network
+
+  # BASE DE DATOS MONGODB
+  mongodb:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - pos_core_network
+
+  # REDIS PARA CACHE Y SESIONES
+  redis:
+    image: redis:7.2-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - pos_core_network
+
+volumes:
+  mongodb_data:
+  redis_data:
+
+networks:
+  pos_core_network:
+    driver: bridge
