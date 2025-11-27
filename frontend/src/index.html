@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pos_Core - Sistema de Punto de Venta</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lucide/1.28.0/css/lucide-base.min.css">
+    <link rel="stylesheet" href="/src/styles/main.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <i data-lucide="shopping-cart"></i>
+                <h1>Pos_Core</h1>
+                <span class="role-badge" id="userRole">Admin</span>
+            </div>
+            <nav class="main-nav">
+                <button class="nav-button active" data-section="dashboard">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-button" data-section="ventas">
+                    <i data-lucide="dollar-sign"></i>
+                    <span>Ventas</span>
+                </button>
+                <button class="nav-button" data-section="inventario">
+                    <i data-lucide="package"></i>
+                    <span>Inventario</span>
+                </button>
+                <button class="nav-button" data-section="reportes">
+                    <i data-lucide="bar-chart-3"></i>
+                    <span>Reportes</span>
+                </button>
+            </nav>
+        </div>
+        <div class="header-right">
+            <div class="user-info">
+                <span class="user-name" id="userName">Usuario</span>
+                <div class="user-avatar">
+                    <i data-lucide="user"></i>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="theme-toggle" id="themeToggle">
+                    <i data-lucide="moon"></i>
+                </button>
+                <button class="logout-btn" id="logoutBtn">
+                    <i data-lucide="log-out"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="content-section active">
+            <!-- El contenido se carga dinamicamente -->
+        </section>
+
+        <!-- Ventas Section -->
+        <section id="ventas" class="content-section">
+            <div class="section-header">
+                <h2>Modulo de Ventas</h2>
+                <p>Gestiona las ventas del sistema</p>
+            </div>
+            <div class="ventas-container">
+                <!-- Contenido de ventas -->
+            </div>
+        </section>
+
+        <!-- Inventario Section -->
+        <section id="inventario" class="content-section">
+            <div class="section-header">
+                <h2>Gestion de Inventario</h2>
+                <p>Administra productos y stock</p>
+            </div>
+            <div class="inventario-container">
+                <!-- Contenido de inventario -->
+            </div>
+        </section>
+
+        <!-- Reportes Section -->
+        <section id="reportes" class="content-section">
+            <div class="section-header">
+                <h2>Reportes y Estadisticas</h2>
+                <p>Analisis de datos del sistema</p>
+            </div>
+            <div class="reportes-container">
+                <!-- Contenido de reportes -->
+            </div>
+        </section>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/1.28.0/lucide.min.js"></script>
+    <script type="module" src="/src/App.js"></script>
+</body>
+</html>

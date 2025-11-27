@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pos_Core - Iniciar Sesion</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lucide/1.28.0/css/lucide-base.min.css">
+    <link rel="stylesheet" href="/src/styles/login.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <i data-lucide="shopping-cart"></i>
+                <h1>Pos_Core</h1>
+                <p>Sistema de Punto de Venta</p>
+            </div>
+            
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label for="username">
+                        <i data-lucide="user"></i>
+                        Usuario
+                    </label>
+                    <input type="text" id="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">
+                        <i data-lucide="lock"></i>
+                        Contraseña
+                    </label>
+                    <input type="password" id="password" required>
+                </div>
+                
+                <button type="submit" class="btn-login" id="loginButton">
+                    <i data-lucide="log-in"></i>
+                    Iniciar Sesion
+                </button>
+            </form>
+            
+            <div id="messageContainer"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/1.28.0/lucide.min.js"></script>
+    <script type="module" src="/src/App.js"></script>
+</body>
+</html>

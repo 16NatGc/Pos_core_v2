@@ -1,6 +1,6 @@
-
+# docker-compose.yml
 services:
-  # Base de datos MongoDB - Patrón Singleton para conexión única
+  # Servicios existentes del backend (MANTIENE)
   mongodb:
     image: mongo:6.0
     container_name: pos_mongodb
@@ -13,8 +13,8 @@ services:
       - mongodb_data:/data/db
     networks:
       - pos_network
+    restart: unless-stopped
 
-  # Redis para cache - Implementa Patrón Observer para notificaciones
   redis:
     image: redis:alpine
     container_name: pos_redis
@@ -22,84 +22,72 @@ services:
       - "6379:6379"
     networks:
       - pos_network
+    restart: unless-stopped
 
-  # Servicio de Autenticación - MVC con JWT
   servicio_autenticacion:
-    build: ./servicio_autenticacion
+    build: ./microservicios/servicio_autenticacion
     container_name: pos_auth_service
     ports:
       - "8001:8000"
     environment:
-      - PORT=8000
-      - MONGODB_URL=mongodb://admin:password@mongodb:27017/pos_auth?authSource=admin
+      - MONGODB_URL=mongodb://admin:password@mongodb:27017/
       - JWT_SECRET=pos_core_secret_key_2024
-      - REDIS_URL=redis://redis:6379
     depends_on:
       - mongodb
-      - redis
     networks:
       - pos_network
     restart: unless-stopped
 
-  # Servicio de Productos - MVC con Repository Pattern
-  servicio_productos:
-    build: ./servicio_productos
-    container_name: pos_product_service
+  servicio_inventario:
+    build: ./microservicios/servicio_inventario
+    container_name: pos_inventory_service
     ports:
       - "8002:8000"
     environment:
-      - PORT=8000
-      - MONGODB_URL=mongodb://admin:password@mongodb:27017/pos_products?authSource=admin
+      - MONGODB_URL=mongodb://admin:password@mongodb:27017/
     depends_on:
       - mongodb
     networks:
       - pos_network
     restart: unless-stopped
 
-  # Servicio de Ventas - MVC con Strategy Pattern para diferentes tipos de venta
-  servicio_ventas:
-    build: ./servicio_ventas
-    container_name: pos_sales_service
+  servicio_productos:
+    build: ./microservicios/servicio_productos
+    container_name: pos_product_service
     ports:
       - "8003:8000"
     environment:
-      - PORT=8000
-      - MONGODB_URL=mongodb://admin:password@mongodb:27017/pos_sales?authSource=admin
+      - MONGODB_URL=mongodb://admin:password@mongodb:27017/
+    depends_on:
+      - mongodb
+    networks:
+      - pos_network
+    restart: unless-stopped
+
+  servicio_ventas:
+    build: ./microservicios/servicio_ventas
+    container_name: pos_sales_service
+    ports:
+      - "8004:8000"
+    environment:
+      - MONGODB_URL=mongodb://admin:password@mongodb:27017/
       - PRODUCT_SERVICE_URL=http://servicio_productos:8000
       - INVENTORY_SERVICE_URL=http://servicio_inventario:8000
     depends_on:
       - mongodb
       - servicio_productos
+      - servicio_inventario
     networks:
       - pos_network
     restart: unless-stopped
 
-  # Servicio de Inventario - MVC con Observer Pattern para alertas de stock
-  servicio_inventario:
-    build: ./servicio_inventario
-    container_name: pos_inventory_service
-    ports:
-      - "8004:8000"
-    environment:
-      - PORT=8000
-      - MONGODB_URL=mongodb://admin:password@mongodb:27017/pos_inventory?authSource=admin
-      - REDIS_URL=redis://redis:6379
-    depends_on:
-      - mongodb
-      - redis
-    networks:
-      - pos_network
-    restart: unless-stopped
-
-  # Servicio de Reportes - MVC con Factory Method para diferentes tipos de reportes
   servicio_reportes:
-    build: ./servicio_reportes
+    build: ./microservicios/servicio_reportes
     container_name: pos_reports_service
     ports:
       - "8005:8000"
     environment:
-      - PORT=8000
-      - MONGODB_URL=mongodb://admin:password@mongodb:27017/pos_reports?authSource=admin
+      - MONGODB_URL=mongodb://admin:password@mongodb:27017/
       - SALES_SERVICE_URL=http://servicio_ventas:8000
     depends_on:
       - mongodb
@@ -108,14 +96,12 @@ services:
       - pos_network
     restart: unless-stopped
 
-  # Servicio de Impresión - MVC con Command Pattern para colas de impresión
   servicio_impresion:
-    build: ./servicio_impresion
+    build: ./microservicios/servicio_impresion
     container_name: pos_print_service
     ports:
       - "8006:8000"
     environment:
-      - PORT=8000
       - REDIS_URL=redis://redis:6379
     depends_on:
       - redis
@@ -123,46 +109,47 @@ services:
       - pos_network
     restart: unless-stopped
 
-  # API Gateway - Facade Pattern para unificar microservicios
-  puerta_de_enlace_api:
-    build: ./puerta_de_enlace_api
+  api_gateway:
+    build: ./microservicios/api_gateway
     container_name: pos_api_gateway
     ports:
       - "8000:8000"
     environment:
-      - PORT=8000
       - AUTH_SERVICE_URL=http://servicio_autenticacion:8000
+      - INVENTORY_SERVICE_URL=http://servicio_inventario:8000
       - PRODUCT_SERVICE_URL=http://servicio_productos:8000
       - SALES_SERVICE_URL=http://servicio_ventas:8000
-      - INVENTORY_SERVICE_URL=http://servicio_inventario:8000
       - REPORTS_SERVICE_URL=http://servicio_reportes:8000
       - PRINT_SERVICE_URL=http://servicio_impresion:8000
-      - JWT_SECRET=pos_core_secret_key_2024
     depends_on:
       - servicio_autenticacion
+      - servicio_inventario
       - servicio_productos
       - servicio_ventas
-      - servicio_inventario
       - servicio_reportes
       - servicio_impresion
     networks:
       - pos_network
     restart: unless-stopped
 
-  # Frontend - MVC con Component Pattern
+  # NUEVO: Frontend Service (MVC Architecture)
   frontend:
     build: ./frontend
     container_name: pos_frontend
     ports:
       - "3000:80"
+    environment:
+      - API_BASE_URL=http://api_gateway:8000/api
+      - NODE_ENV=production
     depends_on:
-      - puerta_de_enlace_api
+      - api_gateway
     networks:
       - pos_network
     restart: unless-stopped
 
 volumes:
   mongodb_data:
+    driver: local
 
 networks:
   pos_network:
